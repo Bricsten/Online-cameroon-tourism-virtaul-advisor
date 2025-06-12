@@ -21,14 +21,7 @@ const SignInForm: React.FC = () => {
       navigate('/');
     } catch (error: any) {
       console.error('Sign in error:', error);
-      
-      // Check for specific email confirmation error
-      if (error?.message?.includes('Email not confirmed') || 
-          error?.code === 'email_not_confirmed') {
-        toast.error('Please check your email and click the verification link to confirm your account before signing in.');
-      } else {
-        toast.error('Failed to sign in. Please check your credentials.');
-      }
+      toast.error('Invalid email or password. Please check your credentials.');
     } finally {
       setLoading(false);
     }

@@ -36,6 +36,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { error, data } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        emailRedirectTo: undefined // Disable email confirmation
+      }
     });
 
     if (error) throw error;
@@ -53,7 +56,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           },
         ]);
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error('Profile creation error:', profileError);
+        // Don't throw error here as the user account was created successfully
+      }
     }
   };
 

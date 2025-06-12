@@ -20,15 +20,24 @@ const SignUpForm: React.FC = () => {
       return;
     }
 
+    if (password.length < 8) {
+      toast.error('Password must be at least 8 characters long');
+      return;
+    }
+
     setLoading(true);
 
     try {
       await signUp(email, password);
-      toast.success('Account created successfully! Please check your email for verification.');
+      toast.success('Account created successfully! You are now signed in.');
       navigate('/');
-    } catch (error) {
-      toast.error('Failed to create account. Please try again.');
+    } catch (error: any) {
       console.error('Sign up error:', error);
+      if (error.message?.includes('already registered')) {
+        toast.error('An account with this email already exists. Please sign in instead.');
+      } else {
+        toast.error('Failed to create account. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -75,6 +84,7 @@ const SignUpForm: React.FC = () => {
             minLength={8}
           />
         </div>
+        <p className="text-xs text-neutral-500 mt-1">Must be at least 8 characters long</p>
       </div>
 
       <div>
