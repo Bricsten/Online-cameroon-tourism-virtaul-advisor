@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, MapPin, MessageSquare, Globe, ChevronDown, LogIn, UserCircle, LogOut, Settings } from 'lucide-react';
+import { Menu, X, MapPin, MessageSquare, Globe, ChevronDown, LogIn, UserCircle, LogOut, Settings, LayoutDashboard } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -104,11 +104,11 @@ const Header: React.FC = () => {
                   <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
                     <div className="py-1">
                       <Link
-                        to="/profile"
+                        to="/dashboard"
                         className="block px-4 py-2 text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-500"
                       >
-                        <Settings className="inline-block h-4 w-4 mr-2" />
-                        Profile Settings
+                        <LayoutDashboard className="inline-block h-4 w-4 mr-2" />
+                        Dashboard
                       </Link>
                       <button
                         onClick={handleSignOut}
@@ -196,9 +196,9 @@ const Header: React.FC = () => {
                     <UserCircle className="h-6 w-6 text-neutral-600 mr-2" />
                     <span className="font-medium">{user.email?.split('@')[0]}</span>
                   </div>
-                  <Link to="/profile" className="block py-2 text-neutral-700 hover:text-primary-500">
-                    <Settings className="inline-block h-4 w-4 mr-2" />
-                    Profile Settings
+                  <Link to="/dashboard" className="block py-2 text-neutral-700 hover:text-primary-500">
+                    <LayoutDashboard className="inline-block h-4 w-4 mr-2" />
+                    Dashboard
                   </Link>
                   <button
                     onClick={handleSignOut}

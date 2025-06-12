@@ -1,17 +1,125 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MapPin, Clock, Calendar, DollarSign, Users, Star, ArrowLeft, Share, Heart, MessageSquare } from 'lucide-react';
+import { MapPin, Clock, Calendar, DollarSign, Users, Star, ArrowLeft, Share, Heart, MessageSquare, BookOpen } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { useDestination } from '../hooks/useDestinations';
+import { useAuth } from '../contexts/AuthContext';
 import { Destination } from '../types/destination';
+import { SavedDestinationService } from '../services/savedDestinationService';
+import { ReviewService } from '../services/reviewService';
 import GoogleMap from '../components/maps/GoogleMap';
+import BookingModal from '../components/booking/BookingModal';
+import ReviewModal from '../components/reviews/ReviewModal';
 import NotFoundPage from './NotFoundPage';
+import { Review } from '../types/review';
 
 const DestinationDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { destination, loading, error } = useDestination(id || '');
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'overview' | 'map' | 'itinerary' | 'tips' | 'reviews'>('overview');
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  
+  useEffect(() => {
+    if (destination && user) {
+      checkIfSaved();
+    }
+  }, [destination, user]);
+
+  useEffect(() => {
+    if (destination && activeTab === 'reviews') {
+      fetchReviews();
+    }
+  }, [destination, activeTab]);
+
+  const checkIfSaved = async () => {
+    if (!destination || !user) return;
+    
+    try {
+      const saved = await SavedDestinationService.isDestinationSaved(destination.id);
+      setIsFavorite(saved);
+    } catch (error) {
+      console.error('Error checking saved status:', error);
+    }
+  };
+
+  const fetchReviews = async () => {
+    if (!destination) return;
+    
+    setReviewsLoading(true);
+    try {
+      const destinationReviews = await ReviewService.getDestinationReviews(destination.id);
+      setReviews(destinationReviews);
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
+
+  const handleToggleFavorite = async () => {
+    if (!user) {
+      toast.error('Please sign in to save destinations');
+      return;
+    }
+
+    if (!destination) return;
+
+    try {
+      if (isFavorite) {
+        await SavedDestinationService.unsaveDestination(destination.id);
+        setIsFavorite(false);
+        toast.success('Destination removed from saved list');
+      } else {
+        await SavedDestinationService.saveDestination(destination.id);
+        setIsFavorite(true);
+        toast.success('Destination saved to your list');
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+      toast.error('Failed to update saved status');
+    }
+  };
+
+  const handleBookNow = () => {
+    if (!user) {
+      toast.error('Please sign in to book destinations');
+      return;
+    }
+    setIsBookingModalOpen(true);
+  };
+
+  const handleWriteReview = () => {
+    if (!user) {
+      toast.error('Please sign in to write reviews');
+      return;
+    }
+    setIsReviewModalOpen(true);
+  };
+
+  const handleShare = async () => {
+    if (navigator.share && destination) {
+      try {
+        await navigator.share({
+          title: destination.name,
+          text: destination.description,
+          url: window.location.href,
+        });
+      } catch (error) {
+        // Fallback to clipboard
+        navigator.clipboard.writeText(window.location.href);
+        toast.success('Link copied to clipboard');
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      toast.success('Link copied to clipboard');
+    }
+  };
   
   if (loading) {
     return (
@@ -81,12 +189,15 @@ const DestinationDetailPage: React.FC = () => {
               <div className="flex space-x-4">
                 <button 
                   className="flex items-center text-neutral-700 hover:text-primary-500"
-                  onClick={() => setIsFavorite(!isFavorite)}
+                  onClick={handleToggleFavorite}
                 >
                   <Heart className={`h-5 w-5 mr-2 ${isFavorite ? 'fill-secondary-500 text-secondary-500' : ''}`} />
-                  <span>Save</span>
+                  <span>{isFavorite ? 'Saved' : 'Save'}</span>
                 </button>
-                <button className="flex items-center text-neutral-700 hover:text-primary-500">
+                <button 
+                  className="flex items-center text-neutral-700 hover:text-primary-500"
+                  onClick={handleShare}
+                >
                   <Share className="h-5 w-5 mr-2" />
                   <span>Share</span>
                 </button>
@@ -95,7 +206,13 @@ const DestinationDetailPage: React.FC = () => {
                   <span>Ask Advisor</span>
                 </Link>
               </div>
-              <button className="btn btn-primary">Book Now</button>
+              <button 
+                className="btn btn-primary"
+                onClick={handleBookNow}
+              >
+                <BookOpen className="h-5 w-5 mr-2" />
+                Book Now
+              </button>
             </div>
             
             {/* Tabs */}
@@ -354,7 +471,12 @@ const DestinationDetailPage: React.FC = () => {
                 <div>
                   <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl font-bold">Traveler Reviews</h2>
-                    <button className="btn btn-outline">Write a Review</button>
+                    <button 
+                      className="btn btn-outline"
+                      onClick={handleWriteReview}
+                    >
+                      Write a Review
+                    </button>
                   </div>
                   
                   <div className="bg-white p-6 rounded-lg border border-neutral-200 mb-8">
@@ -375,7 +497,7 @@ const DestinationDetailPage: React.FC = () => {
                             />
                           ))}
                         </div>
-                        <p className="text-neutral-500">{destination.reviews} reviews</p>
+                        <p className="text-neutral-500">{reviews.length} reviews</p>
                       </div>
                       
                       <div className="md:w-2/3">
@@ -399,45 +521,74 @@ const DestinationDetailPage: React.FC = () => {
                     </div>
                   </div>
                   
-                  <div className="space-y-6">
-                    {Array.from({ length: 3 }).map((_, index) => (
-                      <div key={index} className="bg-white p-6 rounded-lg border border-neutral-200">
-                        <div className="flex justify-between mb-4">
-                          <div className="flex items-center">
-                            <div className="h-12 w-12 rounded-full bg-neutral-200 mr-4"></div>
-                            <div>
-                              <h4 className="font-bold">Traveler {index + 1}</h4>
-                              <p className="text-sm text-neutral-500">Visited {new Date().toLocaleDateString()}</p>
+                  {reviewsLoading ? (
+                    <div className="text-center py-8">
+                      <div className="animate-spin h-8 w-8 border-4 border-primary-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                      <p className="text-neutral-600">Loading reviews...</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {reviews.map((review) => (
+                        <div key={review.id} className="bg-white p-6 rounded-lg border border-neutral-200">
+                          <div className="flex justify-between mb-4">
+                            <div className="flex items-center">
+                              <div className="h-12 w-12 rounded-full bg-neutral-200 mr-4 flex items-center justify-center">
+                                <span className="font-bold text-neutral-600">
+                                  {review.user?.username?.charAt(0).toUpperCase() || 'U'}
+                                </span>
+                              </div>
+                              <div>
+                                <h4 className="font-bold">{review.user?.username || 'Anonymous'}</h4>
+                                <p className="text-sm text-neutral-500">
+                                  {review.travel_date && `Visited ${new Date(review.travel_date).toLocaleDateString()} • `}
+                                  {new Date(review.created_at).toLocaleDateString()}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex">
+                              {Array.from({ length: 5 }).map((_, i) => (
+                                <Star 
+                                  key={i} 
+                                  className={`h-4 w-4 ${
+                                    i < review.rating ? 'text-accent-500 fill-accent-500' : 'text-neutral-300'
+                                  }`} 
+                                />
+                              ))}
                             </div>
                           </div>
-                          <div className="flex">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <Star 
-                                key={i} 
-                                className={`h-4 w-4 ${
-                                  i < 5 - index % 2 ? 'text-accent-500 fill-accent-500' : 'text-neutral-300'
-                                }`} 
-                              />
-                            ))}
+                          <h5 className="font-bold mb-2">{review.title}</h5>
+                          <p className="text-neutral-600 mb-4">{review.content}</p>
+                          <div className="flex justify-between items-center">
+                            <div className="text-sm text-neutral-500">
+                              {review.travel_type && `${review.travel_type} travel`}
+                            </div>
+                            <button 
+                              className="text-primary-500 text-sm font-medium hover:text-primary-600"
+                              onClick={() => ReviewService.markReviewHelpful(review.id)}
+                            >
+                              Helpful ({review.helpful_count})
+                            </button>
                           </div>
                         </div>
-                        <h5 className="font-bold mb-2">
-                          {["Amazing experience!", "Worth visiting!", "Incredible destination"][index % 3]}
-                        </h5>
-                        <p className="text-neutral-600 mb-4">
-                          {["I had a wonderful time exploring this destination. The natural beauty was breathtaking and the local people were very friendly. Highly recommend for nature lovers!",
-                            "Great place to visit with family. There's something for everyone here. The activities were fun and educational.",
-                            "A perfect getaway from the busy city life. The scenery is absolutely stunning and there are plenty of things to do."][index % 3]}
-                        </p>
-                        <div className="flex justify-between items-center">
-                          <div className="text-sm text-neutral-500">
-                            {["3 days, couple", "5 days, family", "2 days, solo"][index % 3]}
-                          </div>
-                          <button className="text-primary-500 text-sm font-medium">Helpful</button>
+                      ))}
+                      
+                      {reviews.length === 0 && (
+                        <div className="text-center py-12">
+                          <Star className="h-16 w-16 text-neutral-300 mx-auto mb-4" />
+                          <h3 className="text-xl font-bold mb-2">No Reviews Yet</h3>
+                          <p className="text-neutral-600 mb-6">
+                            Be the first to share your experience at {destination.name}!
+                          </p>
+                          <button 
+                            className="btn btn-primary"
+                            onClick={handleWriteReview}
+                          >
+                            Write the First Review
+                          </button>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -513,6 +664,28 @@ const DestinationDetailPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      {destination && (
+        <>
+          <BookingModal
+            destination={destination}
+            isOpen={isBookingModalOpen}
+            onClose={() => setIsBookingModalOpen(false)}
+            onBookingCreated={() => {
+              // Refresh or show success message
+            }}
+          />
+          <ReviewModal
+            destination={destination}
+            isOpen={isReviewModalOpen}
+            onClose={() => setIsReviewModalOpen(false)}
+            onReviewCreated={() => {
+              fetchReviews();
+            }}
+          />
+        </>
+      )}
     </div>
   );
 };

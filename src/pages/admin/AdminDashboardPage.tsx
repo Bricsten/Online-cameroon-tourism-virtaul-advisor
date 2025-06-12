@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Users, Star, LogOut, Trash2, Edit, Plus, MapPin, Upload } from 'lucide-react';
+import { Users, Star, LogOut, Trash2, Edit, Plus, MapPin, Upload, Calendar, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useAdmin } from '../../contexts/AdminContext';
 import { supabase } from '../../lib/supabase';
+import { BookingService } from '../../services/bookingService';
+import { Booking } from '../../types/booking';
 
 interface Profile {
   id: string;
@@ -19,6 +21,7 @@ interface Review {
   user_id: string;
   destination_id: string;
   rating: number;
+  title: string;
   content: string;
   created_at: string;
   profiles: {
@@ -63,10 +66,11 @@ interface Destination {
 }
 
 const AdminDashboardPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'profiles' | 'reviews' | 'destinations'>('profiles');
+  const [activeTab, setActiveTab] = useState<'profiles' | 'reviews' | 'destinations' | 'bookings'>('profiles');
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [destinations, setDestinations] = useState<Destination[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editingDestination, setEditingDestination] = useState<Destination | null>(null);
@@ -131,6 +135,9 @@ const AdminDashboardPage: React.FC = () => {
         
         if (error) throw error;
         setReviews(data || []);
+      } else if (activeTab === 'bookings') {
+        const allBookings = await BookingService.getAllBookings();
+        setBookings(allBookings);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -199,15 +206,6 @@ const AdminDashboardPage: React.FC = () => {
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
-  };
-
-  const isValidUrl = (url: string): boolean => {
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
   };
 
   const handleSaveDestination = async (destination: Destination) => {
@@ -352,6 +350,29 @@ const AdminDashboardPage: React.FC = () => {
     }
   };
 
+  const handleUpdateBookingStatus = async (bookingId: string, status: Booking['status']) => {
+    try {
+      await BookingService.updateBookingStatus(bookingId, status);
+      setBookings(prev => prev.map(b => 
+        b.id === bookingId ? { ...b, status } : b
+      ));
+      toast.success(`Booking ${status} successfully`);
+    } catch (error) {
+      console.error('Error updating booking status:', error);
+      toast.error('Failed to update booking status');
+    }
+  };
+
+  const getStatusColor = (status: Booking['status']) => {
+    switch (status) {
+      case 'confirmed': return 'text-green-600 bg-green-100';
+      case 'pending': return 'text-yellow-600 bg-yellow-100';
+      case 'cancelled': return 'text-red-600 bg-red-100';
+      case 'completed': return 'text-blue-600 bg-blue-100';
+      default: return 'text-neutral-600 bg-neutral-100';
+    }
+  };
+
   const handleLogout = () => {
     logout();
     navigate('/admin');
@@ -411,6 +432,17 @@ const AdminDashboardPage: React.FC = () => {
               <MapPin className="h-5 w-5 mr-2" />
               Destinations
             </button>
+            <button
+              onClick={() => setActiveTab('bookings')}
+              className={`flex items-center px-4 py-2 rounded-lg ${
+                activeTab === 'bookings'
+                  ? 'bg-primary-500 text-white'
+                  : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+              }`}
+            >
+              <Calendar className="h-5 w-5 mr-2" />
+              Bookings
+            </button>
           </div>
 
           {loading ? (
@@ -460,6 +492,7 @@ const AdminDashboardPage: React.FC = () => {
                   <thead>
                     <tr className="border-b border-neutral-200">
                       <th className="text-left py-3 px-4">User</th>
+                      <th className="text-left py-3 px-4">Title</th>
                       <th className="text-left py-3 px-4">Rating</th>
                       <th className="text-left py-3 px-4">Content</th>
                       <th className="text-left py-3 px-4">Created At</th>
@@ -475,6 +508,7 @@ const AdminDashboardPage: React.FC = () => {
                         className="border-b border-neutral-100"
                       >
                         <td className="py-3 px-4">{review.profiles?.username}</td>
+                        <td className="py-3 px-4 font-medium">{review.title}</td>
                         <td className="py-3 px-4">
                           <div className="flex items-center">
                             <Star className="h-4 w-4 text-accent-500 fill-accent-500" />
@@ -499,6 +533,116 @@ const AdminDashboardPage: React.FC = () => {
                     ))}
                   </tbody>
                 </table>
+              ) : activeTab === 'bookings' ? (
+                <div>
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-xl font-bold">Booking Management</h2>
+                    <div className="flex space-x-2 text-sm">
+                      <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded">
+                        Pending: {bookings.filter(b => b.status === 'pending').length}
+                      </span>
+                      <span className="px-2 py-1 bg-green-100 text-green-800 rounded">
+                        Confirmed: {bookings.filter(b => b.status === 'confirmed').length}
+                      </span>
+                    </div>
+                  </div>
+
+                  {bookings.length === 0 ? (
+                    <div className="text-center py-12 bg-white rounded-lg border border-neutral-200">
+                      <Calendar className="h-16 w-16 text-neutral-300 mx-auto mb-4" />
+                      <p className="text-neutral-600">No bookings found</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {bookings.map((booking) => (
+                        <motion.div
+                          key={booking.id}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="bg-white p-6 rounded-lg border border-neutral-200 hover:shadow-md transition-shadow"
+                        >
+                          <div className="flex flex-col lg:flex-row gap-6">
+                            <img
+                              src={booking.destination_image}
+                              alt={booking.destination_name}
+                              className="w-full lg:w-32 h-32 object-cover rounded-lg"
+                            />
+                            <div className="flex-grow">
+                              <div className="flex justify-between items-start mb-4">
+                                <div>
+                                  <h3 className="text-lg font-bold mb-1">{booking.destination_name}</h3>
+                                  <p className="text-neutral-600 text-sm">
+                                    Booking ID: {booking.id.slice(0, 8)}...
+                                  </p>
+                                </div>
+                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(booking.status)}`}>
+                                  {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                                </span>
+                              </div>
+                              
+                              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                                <div>
+                                  <p className="text-sm text-neutral-500">Travel Date</p>
+                                  <p className="font-medium">{new Date(booking.travel_date).toLocaleDateString()}</p>
+                                </div>
+                                <div>
+                                  <p className="text-sm text-neutral-500">Travelers</p>
+                                  <p className="font-medium">{booking.number_of_travelers}</p>
+                                </div>
+                                <div>
+                                  <p className="text-sm text-neutral-500">Contact</p>
+                                  <p className="font-medium text-sm">{booking.contact_info.phone}</p>
+                                  <p className="text-sm text-neutral-600">{booking.contact_info.email}</p>
+                                </div>
+                                <div>
+                                  <p className="text-sm text-neutral-500">Booked On</p>
+                                  <p className="font-medium">{new Date(booking.created_at).toLocaleDateString()}</p>
+                                </div>
+                              </div>
+
+                              {booking.special_requests && (
+                                <div className="mb-4">
+                                  <p className="text-sm text-neutral-500 mb-1">Special Requests</p>
+                                  <p className="text-sm bg-neutral-50 p-2 rounded">{booking.special_requests}</p>
+                                </div>
+                              )}
+
+                              <div className="flex justify-end space-x-2">
+                                {booking.status === 'pending' && (
+                                  <>
+                                    <button
+                                      onClick={() => handleUpdateBookingStatus(booking.id, 'confirmed')}
+                                      className="flex items-center px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 text-sm"
+                                    >
+                                      <CheckCircle className="h-4 w-4 mr-1" />
+                                      Confirm
+                                    </button>
+                                    <button
+                                      onClick={() => handleUpdateBookingStatus(booking.id, 'cancelled')}
+                                      className="flex items-center px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-sm"
+                                    >
+                                      <XCircle className="h-4 w-4 mr-1" />
+                                      Cancel
+                                    </button>
+                                  </>
+                                )}
+                                {booking.status === 'confirmed' && (
+                                  <button
+                                    onClick={() => handleUpdateBookingStatus(booking.id, 'completed')}
+                                    className="flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-sm"
+                                  >
+                                    <CheckCircle className="h-4 w-4 mr-1" />
+                                    Mark Complete
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ) : (
                 <div>
                   <div className="flex justify-between items-center mb-6">

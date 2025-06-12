@@ -10,6 +10,7 @@ import DestinationsPage from './pages/DestinationsPage';
 import DestinationDetailPage from './pages/DestinationDetailPage';
 import NotFoundPage from './pages/NotFoundPage';
 import AuthPage from './pages/AuthPage';
+import UserDashboardPage from './pages/UserDashboardPage';
 import AdminLoginPage from './pages/admin/AdminLoginPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import Header from './components/layout/Header';
@@ -35,6 +36,7 @@ function App() {
                 <Route path="/destinations" element={<DestinationsPage />} />
                 <Route path="/destinations/:id" element={<DestinationDetailPage />} />
                 <Route path="/auth" element={<AuthPage />} />
+                <Route path="/dashboard" element={<UserDashboardPage />} />
                 <Route path="/admin" element={<AdminLoginPage />} />
                 <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
                 <Route path="*" element={<NotFoundPage />} />
