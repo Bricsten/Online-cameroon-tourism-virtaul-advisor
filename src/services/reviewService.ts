@@ -25,7 +25,10 @@ export class ReviewService {
       `)
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error creating review:', error);
+      throw new Error('Failed to create review');
+    }
     return data;
   }
 
@@ -39,7 +42,10 @@ export class ReviewService {
       .eq('destination_id', destinationId)
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching destination reviews:', error);
+      throw new Error('Failed to fetch reviews');
+    }
     return data || [];
   }
 
@@ -53,7 +59,10 @@ export class ReviewService {
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching user reviews:', error);
+      throw new Error('Failed to fetch user reviews');
+    }
     return data || [];
   }
 
@@ -75,7 +84,10 @@ export class ReviewService {
       `)
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error updating review:', error);
+      throw new Error('Failed to update review');
+    }
     return data;
   }
 
@@ -89,7 +101,10 @@ export class ReviewService {
       .eq('id', reviewId)
       .eq('user_id', user.id);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error deleting review:', error);
+      throw new Error('Failed to delete review');
+    }
   }
 
   static async markReviewHelpful(reviewId: string): Promise<void> {
@@ -97,6 +112,9 @@ export class ReviewService {
       review_id: reviewId
     });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error marking review helpful:', error);
+      throw new Error('Failed to mark review as helpful');
+    }
   }
 }

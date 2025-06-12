@@ -13,7 +13,10 @@ export class BookingService {
       .eq('slug', bookingData.destination_id)
       .single();
 
-    if (destError) throw destError;
+    if (destError) {
+      console.error('Error fetching destination:', destError);
+      throw new Error('Destination not found');
+    }
 
     const { data, error } = await supabase
       .from('bookings')
@@ -33,7 +36,10 @@ export class BookingService {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error creating booking:', error);
+      throw new Error('Failed to create booking');
+    }
     return data;
   }
 
@@ -44,7 +50,10 @@ export class BookingService {
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching user bookings:', error);
+      throw new Error('Failed to fetch bookings');
+    }
     return data || [];
   }
 
@@ -54,7 +63,10 @@ export class BookingService {
       .update({ status, updated_at: new Date().toISOString() })
       .eq('id', bookingId);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error updating booking status:', error);
+      throw new Error('Failed to update booking status');
+    }
   }
 
   static async cancelBooking(bookingId: string): Promise<void> {
@@ -67,7 +79,10 @@ export class BookingService {
       .eq('id', bookingId)
       .eq('user_id', user.id);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error cancelling booking:', error);
+      throw new Error('Failed to cancel booking');
+    }
   }
 
   static async getAllBookings(): Promise<Booking[]> {
@@ -79,7 +94,10 @@ export class BookingService {
       `)
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching all bookings:', error);
+      throw new Error('Failed to fetch bookings');
+    }
     return data || [];
   }
 }

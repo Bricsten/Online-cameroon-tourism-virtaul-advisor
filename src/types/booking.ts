@@ -4,10 +4,8 @@ export interface Booking {
   destination_id: string;
   destination_name: string;
   destination_image: string;
-  booking_date: string;
   travel_date: string;
   number_of_travelers: number;
-  total_cost: number;
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
   special_requests?: string;
   contact_info: {

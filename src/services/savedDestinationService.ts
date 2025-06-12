@@ -13,7 +13,10 @@ export class SavedDestinationService {
       .eq('slug', destinationId)
       .single();
 
-    if (destError) throw destError;
+    if (destError) {
+      console.error('Error fetching destination:', destError);
+      throw new Error('Destination not found');
+    }
 
     const { data, error } = await supabase
       .from('saved_destinations')
@@ -31,7 +34,13 @@ export class SavedDestinationService {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error saving destination:', error);
+      if (error.code === '23505') { // Unique constraint violation
+        throw new Error('Destination already saved');
+      }
+      throw new Error('Failed to save destination');
+    }
     return data;
   }
 
@@ -45,7 +54,10 @@ export class SavedDestinationService {
       .eq('user_id', user.id)
       .eq('destination_id', destinationId);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error unsaving destination:', error);
+      throw new Error('Failed to remove saved destination');
+    }
   }
 
   static async getUserSavedDestinations(userId: string): Promise<SavedDestination[]> {
@@ -55,7 +67,10 @@ export class SavedDestinationService {
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching saved destinations:', error);
+      throw new Error('Failed to fetch saved destinations');
+    }
     return data || [];
   }
 
@@ -69,6 +84,10 @@ export class SavedDestinationService {
       .eq('user_id', user.id)
       .eq('destination_id', destinationId)
       .single();
+
+    if (error && error.code !== 'PGRST116') { // PGRST116 is "not found" error
+      console.error('Error checking saved status:', error);
+    }
 
     return !error && !!data;
   }
