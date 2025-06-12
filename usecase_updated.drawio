@@ -1,0 +1,179 @@
+<mxfile host="app.diagrams.net" modified="2024-03-19T12:00:00.000Z" agent="Mozilla/5.0" version="21.7.5" etag="your-etag" type="device">
+  <diagram id="usecase" name="Use Case Diagram">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <!-- System Boundary -->
+        <mxCell id="system" value="" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=#000000;fillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="180" y="60" width="440" height="800" as="geometry"/>
+        </mxCell>
+        <!-- System Name -->
+        <mxCell id="sysname" value="Cameroon Tourism System" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=16;fontStyle=1;fontColor=#000000" vertex="1" parent="1">
+          <mxGeometry x="180" y="60" width="440" height="30" as="geometry"/>
+        </mxCell>
+        <!-- Actors -->
+        <mxCell id="user" value="User" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=none;strokeColor=#000000;fontColor=#000000" vertex="1" parent="1">
+          <mxGeometry x="60" y="180" width="30" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="admin" value="Admin" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=none;strokeColor=#000000;fontColor=#000000" vertex="1" parent="1">
+          <mxGeometry x="670" y="180" width="30" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="ai_assistant" value="AI Assistant" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=none;strokeColor=#000000;fontColor=#000000" vertex="1" parent="1">
+          <mxGeometry x="60" y="400" width="30" height="60" as="geometry"/>
+        </mxCell>
+        <!-- Use Cases (User) -->
+        <mxCell id="login" value="Login" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000" vertex="1" parent="system">
+          <mxGeometry x="60" y="40" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="register" value="Register" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000" vertex="1" parent="system">
+          <mxGeometry x="60" y="90" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="create_profile" value="Create Profile" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000" vertex="1" parent="system">
+          <mxGeometry x="60" y="140" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="edit_profile" value="Edit Profile" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000" vertex="1" parent="system">
+          <mxGeometry x="60" y="190" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="view_destinations" value="View Destinations" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000" vertex="1" parent="system">
+          <mxGeometry x="60" y="240" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="save_destination" value="Save Destination" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000" vertex="1" parent="system">
+          <mxGeometry x="60" y="290" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="share_destination" value="Share Destination" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000" vertex="1" parent="system">
+          <mxGeometry x="60" y="340" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="view_tours" value="View Tours" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000" vertex="1" parent="system">
+          <mxGeometry x="60" y="390" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="book_tour" value="Book Tour" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000" vertex="1" parent="system">
+          <mxGeometry x="60" y="440" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="view_bookings" value="View Bookings" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000" vertex="1" parent="system">
+          <mxGeometry x="60" y="490" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="write_review" value="Write Review" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000" vertex="1" parent="system">
+          <mxGeometry x="60" y="540" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="contact_admin" value="Contact Admin" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000" vertex="1" parent="system">
+          <mxGeometry x="60" y="590" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <!-- Use Cases (Admin) -->
+        <mxCell id="manage_users" value="Manage Users" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000" vertex="1" parent="system">
+          <mxGeometry x="240" y="140" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="manage_destinations" value="Manage Destinations" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000" vertex="1" parent="system">
+          <mxGeometry x="240" y="190" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="manage_tours" value="Manage Tours" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000" vertex="1" parent="system">
+          <mxGeometry x="240" y="240" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="manage_bookings" value="Manage Bookings" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000" vertex="1" parent="system">
+          <mxGeometry x="240" y="290" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="respond_messages" value="Respond to Messages" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000" vertex="1" parent="system">
+          <mxGeometry x="240" y="340" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <!-- Use Cases (AI Assistant) -->
+        <mxCell id="answer_questions" value="Answer Questions" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000" vertex="1" parent="system">
+          <mxGeometry x="240" y="390" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="provide_assistance" value="Provide Assistance" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000" vertex="1" parent="system">
+          <mxGeometry x="240" y="440" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="recommend_destinations" value="Recommend Destinations" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000" vertex="1" parent="system">
+          <mxGeometry x="240" y="490" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <!-- User Relationships -->
+        <mxCell id="rel1" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="user" target="login">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel2" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="user" target="register">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel3" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="user" target="create_profile">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel4" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="user" target="edit_profile">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel5" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="user" target="view_destinations">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel6" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="user" target="save_destination">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel7" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="user" target="share_destination">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel8" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="user" target="view_tours">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel9" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="user" target="book_tour">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel10" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="user" target="view_bookings">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel11" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="user" target="write_review">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel12" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="user" target="contact_admin">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <!-- Admin Relationships -->
+        <mxCell id="rel13" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="admin" target="manage_users">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel14" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="admin" target="manage_destinations">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel15" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="admin" target="manage_tours">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel16" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="admin" target="manage_bookings">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel17" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="admin" target="respond_messages">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <!-- AI Assistant Relationships -->
+        <mxCell id="rel18" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="ai_assistant" target="answer_questions">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel19" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="ai_assistant" target="provide_assistance">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel20" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="ai_assistant" target="recommend_destinations">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <!-- Include/Extend Relationships -->
+        <mxCell id="include1" value="include" style="endArrow=open;endSize=12;html=1;strokeColor=#000000;" edge="1" parent="1" source="create_profile" target="login">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="include2" value="include" style="endArrow=open;endSize=12;html=1;strokeColor=#000000;" edge="1" parent="1" source="edit_profile" target="login">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="include3" value="include" style="endArrow=open;endSize=12;html=1;strokeColor=#000000;" edge="1" parent="1" source="save_destination" target="login">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="include4" value="include" style="endArrow=open;endSize=12;html=1;strokeColor=#000000;" edge="1" parent="1" source="share_destination" target="login">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="include5" value="include" style="endArrow=open;endSize=12;html=1;strokeColor=#000000;" edge="1" parent="1" source="book_tour" target="login">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="include6" value="include" style="endArrow=open;endSize=12;html=1;strokeColor=#000000;" edge="1" parent="1" source="write_review" target="login">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="extend1" value="extend" style="endArrow=open;endSize=12;html=1;strokeColor=#000000;" edge="1" parent="1" source="answer_questions" target="view_destinations">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="extend2" value="extend" style="endArrow=open;endSize=12;html=1;strokeColor=#000000;" edge="1" parent="1" source="recommend_destinations" target="view_destinations">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile> 
