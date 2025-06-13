@@ -6,7 +6,7 @@ export class BookingService {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
-    // Get destination details
+    // Get destination details using slug
     const { data: destination, error: destError } = await supabase
       .from('destinations')
       .select('name, image_url')

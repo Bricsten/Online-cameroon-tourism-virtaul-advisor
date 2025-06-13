@@ -25,8 +25,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     // Listen for changes on auth state
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null);
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -64,12 +65,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error, data } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
     if (error) throw error;
+
+    // Check if user profile exists, create if it doesn't
+    if (data.user) {
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', data.user.id)
+        .single();
+
+      if (profileError && profileError.code === 'PGRST116') {
+        // Profile doesn't exist, create it
+        const { error: createProfileError } = await supabase
+          .from('profiles')
+          .insert([
+            {
+              id: data.user.id,
+              username: email.split('@')[0],
+              full_name: '',
+              avatar_url: '',
+            },
+          ]);
+
+        if (createProfileError) {
+          console.error('Profile creation error during sign in:', createProfileError);
+        }
+      }
+    }
   };
 
   const signOut = async () => {

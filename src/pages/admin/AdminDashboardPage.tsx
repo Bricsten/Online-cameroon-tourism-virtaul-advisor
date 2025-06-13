@@ -74,6 +74,8 @@ const AdminDashboardPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editingDestination, setEditingDestination] = useState<Destination | null>(null);
+  const [editingProfile, setEditingProfile] = useState<Profile | null>(null);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
   const { admin, logout } = useAdmin();
   const navigate = useNavigate();
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
@@ -151,20 +153,105 @@ const AdminDashboardPage: React.FC = () => {
     fetchData();
   }, [activeTab]);
 
-  const handleDelete = async (id: string) => {
+  const handleDeleteProfile = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this user profile? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      // First delete the user from auth.users (this will cascade to profiles due to foreign key)
+      const { error: authError } = await supabase.auth.admin.deleteUser(id);
+      
+      if (authError) {
+        console.error('Error deleting user from auth:', authError);
+        // If auth deletion fails, try to delete from profiles table directly
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .delete()
+          .eq('id', id);
+        
+        if (profileError) throw profileError;
+      }
+      
+      toast.success('User profile deleted successfully');
+      fetchData();
+    } catch (error) {
+      console.error('Error deleting profile:', error);
+      toast.error('Failed to delete user profile');
+    }
+  };
+
+  const handleDeleteReview = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this review?')) {
+      return;
+    }
+
     try {
       const { error } = await supabase
-        .from(activeTab)
+        .from('reviews')
         .delete()
         .eq('id', id);
       
       if (error) throw error;
       
-      toast.success(`${activeTab === 'profiles' ? 'Profile' : activeTab === 'reviews' ? 'Review' : 'Destination'} deleted successfully`);
+      toast.success('Review deleted successfully');
       fetchData();
     } catch (error) {
-      console.error('Error deleting:', error);
-      toast.error('Failed to delete');
+      console.error('Error deleting review:', error);
+      toast.error('Failed to delete review');
+    }
+  };
+
+  const handleDeleteDestination = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this destination? This will also delete all related data.')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('destinations')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      toast.success('Destination deleted successfully');
+      fetchData();
+    } catch (error) {
+      console.error('Error deleting destination:', error);
+      toast.error('Failed to delete destination');
+    }
+  };
+
+  const handleEditProfile = (profile: Profile) => {
+    setEditingProfile(profile);
+    setIsEditingProfile(true);
+  };
+
+  const handleSaveProfile = async (profile: Profile) => {
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          username: profile.username,
+          full_name: profile.full_name,
+          avatar_url: profile.avatar_url,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', profile.id);
+
+      if (error) throw error;
+
+      toast.success('Profile updated successfully');
+      setIsEditingProfile(false);
+      setEditingProfile(null);
+      fetchData();
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error('Failed to update profile');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -477,7 +564,13 @@ const AdminDashboardPage: React.FC = () => {
                         </td>
                         <td className="py-3 px-4 text-right">
                           <button
-                            onClick={() => handleDelete(profile.id)}
+                            onClick={() => handleEditProfile(profile)}
+                            className="text-primary-500 hover:text-primary-700 mr-4"
+                          >
+                            <Edit className="h-5 w-5" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteProfile(profile.id)}
                             className="text-red-500 hover:text-red-700"
                           >
                             <Trash2 className="h-5 w-5" />
@@ -523,7 +616,7 @@ const AdminDashboardPage: React.FC = () => {
                         </td>
                         <td className="py-3 px-4 text-right">
                           <button
-                            onClick={() => handleDelete(review.id)}
+                            onClick={() => handleDeleteReview(review.id)}
                             className="text-red-500 hover:text-red-700"
                           >
                             <Trash2 className="h-5 w-5" />
@@ -776,7 +869,7 @@ const AdminDashboardPage: React.FC = () => {
                                   <Edit className="h-5 w-5" />
                                 </button>
                                 <button
-                                  onClick={() => handleDelete(destination.id)}
+                                  onClick={() => handleDeleteDestination(destination.id)}
                                   className="text-red-500 hover:text-red-700"
                                   title="Delete destination"
                                 >
@@ -795,6 +888,95 @@ const AdminDashboardPage: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Profile Edit Modal */}
+      {isEditingProfile && editingProfile && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold">Edit Profile</h2>
+              <button
+                onClick={() => {
+                  setIsEditingProfile(false);
+                  setEditingProfile(null);
+                }}
+                className="text-neutral-500 hover:text-neutral-700"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              handleSaveProfile(editingProfile);
+            }}>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-1">Username</label>
+                  <input
+                    type="text"
+                    value={editingProfile.username}
+                    onChange={(e) => setEditingProfile({
+                      ...editingProfile,
+                      username: e.target.value
+                    })}
+                    className="w-full px-4 py-2 rounded-lg border border-neutral-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-1">Full Name</label>
+                  <input
+                    type="text"
+                    value={editingProfile.full_name || ''}
+                    onChange={(e) => setEditingProfile({
+                      ...editingProfile,
+                      full_name: e.target.value
+                    })}
+                    className="w-full px-4 py-2 rounded-lg border border-neutral-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-1">Avatar URL</label>
+                  <input
+                    type="url"
+                    value={editingProfile.avatar_url || ''}
+                    onChange={(e) => setEditingProfile({
+                      ...editingProfile,
+                      avatar_url: e.target.value
+                    })}
+                    className="w-full px-4 py-2 rounded-lg border border-neutral-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    placeholder="https://example.com/avatar.jpg"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-4 mt-6">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsEditingProfile(false);
+                    setEditingProfile(null);
+                  }}
+                  className="px-6 py-2 rounded-lg border border-neutral-300 text-neutral-700 hover:bg-neutral-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-6 py-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? 'Saving...' : 'Save'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Destination Edit Modal */}
       {isEditing && editingDestination && (
