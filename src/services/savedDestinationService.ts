@@ -83,12 +83,13 @@ export class SavedDestinationService {
       .select('id')
       .eq('user_id', user.id)
       .eq('destination_id', destinationId)
-      .single();
+      .maybeSingle();
 
-    if (error && error.code !== 'PGRST116') { // PGRST116 is "not found" error
+    if (error) {
       console.error('Error checking saved status:', error);
+      return false;
     }
 
-    return !error && !!data;
+    return !!data;
   }
 }
